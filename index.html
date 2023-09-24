@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="fr-ca">
+<head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mahdi Ellili ">
+    <meta name="keywords" content="Jeu de mémoire">
+    <meta name="description" content="Un jeu de carte mémoire">
+    <title>Jeu de mémoire - Mahdi Ellili</title>
+    <link href="Content/styles.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+
+    <div class="title">
+        <h2 id="titre">Jeu de mémoire</h2>
+
+    </div>
+    <div class="container">
+        <div id="Tableau">
+            <!--Tableau 4x4 pour la grille-->
+            <div class="ligne">
+                <div id="case1" class="colonne valeur" data-ligne="0" data-colonne="0"></div>
+                <div id="case2" class="colonne valeur" data-ligne="0" data-colonne="1"></div>
+                <div id="case3" class="colonne valeur" data-ligne="0" data-colonne="2"></div>
+                <div id="case4" class="colonne valeur" data-ligne="0" data-colonne="3"></div>
+            </div>
+            <div class="ligne">
+                <div id="case5" class="colonne valeur" data-ligne="1" data-colonne="0"></div>
+                <div id="case6" class="colonne valeur" data-ligne="1" data-colonne="1"></div>
+                <div id="case7" class="colonne valeur" data-ligne="1" data-colonne="2"></div>
+                <div id="case8" class="colonne valeur" data-ligne="1" data-colonne="3"></div>
+            </div>
+            <div class="ligne">
+                <div id="case9" class="colonne valeur" data-ligne="2" data-colonne="0"></div>
+                <div id="case10" class="colonne valeur" data-ligne="2" data-colonne="1"></div>
+                <div id="case11" class="colonne valeur" data-ligne="2" data-colonne="2"></div>
+                <div id="case12" class="colonne valeur" data-ligne="2" data-colonne="3"></div>
+            </div>
+            <div class="ligne">
+                <div id="case13" class="colonne valeur" data-ligne="3" data-colonne="0"></div>
+                <div id="case14" class="colonne valeur" data-ligne="3" data-colonne="1"></div>
+                <div id="case15" class="colonne valeur" data-ligne="3" data-colonne="2"></div>
+                <div id="case16" class="colonne valeur" data-ligne="3" data-colonne="3"></div>
+            </div>
+
+        </div>
+        <div id="colonne2">
+
+            <h1>Actions</h1>
+            <!--Bouton Commencer-->
+            <Button id="commencer" class=""><b>Commencer</b></Button><br />
+            <!--bouton Solutionner-->
+            <Button id="solutionner"><b>Solutionner</b></Button>
+            <h1>Temps</h1>
+
+            <!--Colonne des statistiques-->
+            <div id="chrono">00:00</div>
+
+            <h1>Statistiques</h1>
+
+            <div class="statistiques">
+                <div class="Coups">
+
+                    <div>Coups:</div>
+                    <div id="ValeurCoups">0</div>
+                </div>
+
+
+
+                <div class="MoinsDeCoups">
+                    <div>Moins de coups:</div>
+                    <div id="ValeurMoinsDeCoups">0</div>
+                </div>
+
+
+                <div class="Erreurs">
+                    <div>Erreurs:</div>
+                    <div id="ValeurErreurs">0</div>
+                </div>
+
+
+                <div class="Meilleur_temps">
+                    <div>Meilleur temps:&emsp;</div>
+                    <div id="Temps">00:00</div>
+                </div>
+
+                <div id="gagné" style="padding-top:20px;color:green;font-size:30px;font-weight:bold"></div>
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+
+    <script src="Scripts/événements.js"></script>
+    <script src="lib/jquery/jquery.js"></script>
+    <script>
+        /*------------------Minuterie------------------*/
+        $(document).ready(function () {
+            //Variables locales
+            let NbCoupsRéussies = 0;
+            let ligne1 = 0;
+            let colonne1 = 0;
+            let Erreurs = 0;
+            let ligne2 = 0;
+            let colonne2 = 0;
+            let NbClick = 0;
+            let minuterieRecord = new Date();
+            minuterieRecord.setSeconds(0);
+            minuterieRecord.setMinutes(0);
+            let minuterie = new Date();
+            let timer = null;
+            let nbCoups = 0;
+            let NbMeilleursCoups = 0;
+            let MeilleurTemps = "";
+
+
+            initialisergrille();
+            MelangerGrille();
+            $('.valeur').css('background-image', 'url("/Images/' + tabImages[0] + '")');
+            $('#Tableau').children().css('pointer-events', 'none');
+            function AfficherTemps() {
+
+                if (minuterie.getSeconds() < 10) {
+                    $('#chrono').html("0" + minuterie.getMinutes() + ":0" + minuterie.getSeconds()).css('font-weight', 'bold');
+
+                }
+
+                else {
+                    $('#chrono').html("0" + minuterie.getMinutes() + ":" + minuterie.getSeconds()).css('font-weight', 'bold');
+
+                }
+                if (minuterie.getMinutes() > 9 && minuterie.getSeconds() < 10) {
+                    $('#chrono').html(minuterie.getMinutes() + ":0" + minuterie.getSeconds()).css('font-weight', 'bold');
+
+                }
+                if (minuterie.getMinutes() > 9 && minuterie.getSeconds() > 9) {
+                    $('#chrono').html(minuterie.getMinutes() + ":" + minuterie.getSeconds()).css('font-weight', 'bold');
+
+                }
+
+                minuterie.setSeconds(minuterie.getSeconds() + 1);
+            }
+
+
+            $('#commencer').click(function () {
+                $('.colonne').removeClass('tourner');
+                nbCoups = 0;
+                NbCoupsRéussies = 0;
+
+                Erreurs = 0;
+                NbClick = 0;
+                $('#ValeurCoups').html(nbCoups);
+                $('#ValeurErreurs').html(Erreurs);
+                $('#gagné').html("");
+                $('.colonne').css('pointer-events', 'auto');
+
+                $('#Tableau').children().css('pointer-events', 'auto');
+                MelangerGrille();
+                $('.valeur').css({ 'background-image': 'url("/Images/' + tabImages[0] + '")', 'background-color': 'Highlight' });
+                clearInterval(timer);
+                minuterie.setSeconds(0);
+                minuterie.setMinutes(0);
+
+                timer = setInterval(AfficherTemps, 1000);
+
+                $('#commencer').html("Recommencer").css({ 'font-weight': 'bold', 'width': '140px' });
+
+
+
+
+            });
+            $('.colonne').click(function () {
+               
+                if (NbClick >= 2) {
+
+                    NbClick = 0;
+                }
+
+                NbClick++;
+                let ligne = this.dataset.ligne;
+                let colonne = this.dataset.colonne;
+
+                $('[data-ligne="' + ligne1 + '"][data-colonne="' + colonne1 + '"]').removeClass('tourner').removeClass('retourner');
+                $('[data-ligne="' + ligne2 + '"][data-colonne="' + colonne2 + '"]').removeClass('tourner').removeClass('retourner');
+                if (NbClick == 1) {
+                    ligne1 = ligne;
+                    colonne1 = colonne;
+
+                };
+                if (NbClick == 2) {
+
+                    ligne2 = ligne;
+                    colonne2 = colonne;
+                    nbCoups++;
+
+                };
+
+                switch (grille[ligne][colonne]) {
+                    case 1:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[1] + '")');
+                        break;
+                    case 2:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[2] + '")');
+                        break;
+                    case 3:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[3] + '")');
+                        break;
+                    case 4:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[4] + '")');
+                        break;
+                    case 5:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[5] + '")');
+                        break;
+                    case 6:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[6] + '")');
+                        break;
+                    case 7:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[7] + '")');
+                        break;
+                    case 8:
+                        $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').css('background-image', 'url("/Images/' + tabImages[8] + '")');
+                        break;
+
+                    default:
+                }
+                $('[data-ligne="' + ligne + '"][data-colonne="' + colonne + '"]').addClass('tourner');
+                
+
+                //Fin de la partie
+
+                if (NbClick == 2) {
+                    $('.colonne').css('pointer-events', 'none');
+                    if (grille[ligne1][colonne1] == grille[ligne2][colonne2]) {
+                        NbCoupsRéussies++;
+                        $('.colonne').css('pointer-events', 'auto');
+
+                        $('[data-ligne="' + ligne1 + '"][data-colonne="' + colonne1 + '"]').addClass('freeze');
+                        $('[data-ligne="' + ligne2 + '"][data-colonne="' + colonne2 + '"]').addClass('freeze');
+                        if (NbCoupsRéussies == 8) { // Si partie gagné
+                            if (NbMeilleursCoups == 0) {
+
+                                NbMeilleursCoups = nbCoups;
+                                $("#ValeurMoinsDeCoups").html(nbCoups);
+                            }
+
+                            if (nbCoups < NbMeilleursCoups) {
+                                NbMeilleursCoups = nbCoups;
+                                $("#ValeurMoinsDeCoups").html(NbMeilleursCoups);
+                            }
+                            else
+                                $("#ValeurMoinsDeCoups").html(NbMeilleursCoups);
+                            $('#gagné').html("Partie Gagné!");
+                            MeilleurTemps = $('#chrono').html();
+                            $('#Temps').html(MeilleurTemps);
+                            //Pause de la minuterie
+                            clearInterval(timer);
+                        }
+                    }
+                    else {
+                        setTimeout(function () {
+                            $('[data-ligne="' + ligne1 + '"][data-colonne="' + colonne1 + '"]').removeClass('tourner').addClass('retourner').css('background-image', 'url("/Images/' + tabImages[0] + '")');
+                            $('[data-ligne="' + ligne2 + '"][data-colonne="' + colonne2 + '"]').removeClass('tourner').addClass('retourner').css('background-image', 'url("/Images/' + tabImages[0] + '")');
+                            $('.colonne').css('pointer-events', 'auto');
+                        }, 500);
+                        Erreurs++;
+                        $('#ValeurErreurs').html(Erreurs);
+                    }
+                    $('#ValeurCoups').html(nbCoups);
+                }
+
+            });
+            $('#solutionner').click(function () {
+                $('.colonne').css('pointer-events', 'none');
+               
+                solutionner();
+                clearInterval(timer);
+            });
+        });
+
+
+
+    </script>
+</body>
+</html>
